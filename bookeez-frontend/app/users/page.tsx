@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import dotenv from 'dotenv';
 
 interface User {
   _id: string;
@@ -11,6 +12,8 @@ interface User {
 }
 
 const Users = () => {
+  dotenv.config();
+  const [loading, setloading] = useState(true)
   const [users, setUsers] = useState<User[]>([])
 
   useEffect(() => {
@@ -19,7 +22,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/auth/user");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth/user`);
 
       if (res.ok) {
         const data = await res.json();
@@ -29,14 +32,18 @@ const Users = () => {
       }
     } catch (error) {
       console.log("eror", error)
+    } finally {
+      setloading(false)
     }
   }
-
+if(loading) {
+  return <div className="h-screen">Loading ....</div>
+}
   return (
     <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
       <div className="flex justify-between">
         <h2 className="text-3xl font-bold mb-6 text-center">All Users</h2>
-        <h1 className="text-white mr-8 bg-gray-700 p-2 rounded-md">Total Users: {users.length}</h1>
+        <h1 className="text-white mr-8 bg-gray-700 p-2 rounded-md mb-4 ">Total Users: {users.length}</h1>
       </div>
 
       {users.length > 0 ? (

@@ -2,10 +2,12 @@
 "use client"
 import { useEffect, useState } from "react"
 import Dropdown from ".././../components/Dropdown"
+import dotenv from 'dotenv';
 import { MdUpload } from 'react-icons/md';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface Template {
     template_name: string,
@@ -25,6 +27,8 @@ interface Template {
 }
 
 const EditTemplate = () => {
+    dotenv.config();
+    const router = useRouter();
     const [template, setTemplate] = useState<Template | undefined>()
     const [loading, setLoading] = useState(true)
     const { id } = useParams()
@@ -72,9 +76,10 @@ const EditTemplate = () => {
     ];
     const semsterOptions = ['Semester 1', ' Semester 2', ' Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester7', 'Semester8']
 
+
     const fetchTemplate = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/template/${id}`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`)
             if (!res.ok) {
                 console.log("eeror");
             }
@@ -124,9 +129,11 @@ const EditTemplate = () => {
      
         const defaultValues = { ...formData, imageUrl };
 
+
+
         try {
             console.log(defaultValues)
-            const res = await fetch(`http://localhost:5000/api/template/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -139,6 +146,7 @@ const EditTemplate = () => {
 
             if (res.ok) {
                 toast.success("Template added successfully!!");
+                router.push("/");
             }
         } catch (error) {
             toast.error("Error adding book. Please try again.");

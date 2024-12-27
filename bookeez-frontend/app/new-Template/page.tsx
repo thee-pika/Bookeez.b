@@ -1,14 +1,16 @@
 
 "use client"
 import { useState } from "react"
-
+import dotenv from 'dotenv';
 import Dropdown from "../components/Dropdown"
 import { MdUpload } from 'react-icons/md';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 const NewTemplate = () => {
-
+    dotenv.config();
+    const router = useRouter();
     const [formData, SetFormData] = useState({
         title: "",
         author: "",
@@ -63,7 +65,7 @@ const NewTemplate = () => {
 
         try {
             console.log(defaultValues)
-            const res = await fetch("http://localhost:5000/api/add-template", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/add-template`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -76,6 +78,7 @@ const NewTemplate = () => {
 
             if (res.ok) {
                 toast.success("Template added successfully!!");
+                router.push("/");
             }
         } catch (error) {
             toast.error("Error adding book. Please try again.");

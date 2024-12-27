@@ -1,6 +1,7 @@
 "use client"
 import Image from "next/image";
 import Link from "next/link";
+import dotenv from 'dotenv';
 import { useEffect, useState } from "react";
 
 interface Template {
@@ -21,12 +22,13 @@ interface Template {
 }
 
 const Templates = () => {
+    dotenv.config();
     const [templates, settemplates] = useState<Template[]>([])
     const [loading, setloading] = useState(true)
 
     const fetchTemplates = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/template");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template`);
 
             const data = await response.json();
             settemplates(data.template)

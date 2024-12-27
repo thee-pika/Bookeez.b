@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import StarRatingComponent from "react-star-rating-component";
+import dotenv from 'dotenv';
+import { useRouter } from "next/navigation";
 
 interface Review {
   comment: string,
@@ -11,6 +13,8 @@ interface Review {
   date: string
 }
 const Reviews = () => {
+  dotenv.config();
+  const router = useRouter();
   const [allReviews, setallReviews] = useState<Review[] | undefined>([])
   const [users, setUsers] = useState<{ [key: string]: string }>({})
 
@@ -20,13 +24,16 @@ const Reviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/template/review");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/review`);
 
       if (res.ok) {
         const data = await res.json();
-        console.log("Reviews Fetched successfully");
+
         setallReviews(data.allReviews)
         fetchUsername(data.allReviews)
+
+        router.refresh()
+
       }
     } catch (error) {
       console.log("eror", error)
@@ -39,7 +46,7 @@ const Reviews = () => {
 
       const uniqueUserIds = [...new Set(userIds)]
       const userPromises = uniqueUserIds.map(async (userId) => {
-        const res = await fetch(`http://localhost:5000/auth/user/${userId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth/user/${userId}`);
 
         if (res.ok) {
           const data = await res.json()

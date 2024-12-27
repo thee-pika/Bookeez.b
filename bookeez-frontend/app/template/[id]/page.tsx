@@ -1,5 +1,6 @@
 "use client"
 import Image from "next/image";
+import dotenv from 'dotenv';
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -25,9 +26,11 @@ interface Template {
 }
 
 const Template = () => {
+    dotenv.config();
     const { id } = useParams()
     const router = useRouter()
     const [template, setTemplate] = useState<Template | undefined>()
+    const [loading, setloading] = useState(true);
     useEffect(() => {
         if (id) {
             fetchTemplate()
@@ -36,7 +39,7 @@ const Template = () => {
 
     const fetchTemplate = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/template/${id}`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`)
             if (!res.ok) {
                 console.log("eeror");
             }
@@ -49,14 +52,18 @@ const Template = () => {
             }
         } catch (error) {
             console.log("eror!!", error)
+        } finally {
+            setloading(true)
         }
 
     }
-   
+   if(loading) {
+    return <div className="h-screen">Loading ...</div>
+   }
     const handleDelete = async () => {
 
         try {
-            const res = await fetch(`http://localhost:5000/api/template/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json"

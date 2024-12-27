@@ -9,7 +9,7 @@ const userRouter = express.Router();
 dotenv.config();
 
 userRouter.post("/register", async (req, res) => {
-  const { username, email, password , fcmToken} = req.body;
+  const { username, email, password, fcmToken } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -20,7 +20,7 @@ userRouter.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword , fcmToken});
+    const newUser = new User({ username, email, password: hashedPassword, fcmToken });
 
     await newUser.save();
 
@@ -41,7 +41,7 @@ userRouter.post("/register", async (req, res) => {
       }
     );
 
-    res.status(201).json({ message: 'User created successfully', user: afterNotificationAdded , notificationTitle, notificationMessage});
+    res.status(201).json({ message: 'User created successfully', user: afterNotificationAdded, notificationTitle, notificationMessage });
   } catch (error) {
     console.log(error);
     res.status(501).json({ message: `Error registering user ${username, email}`, error });
@@ -50,10 +50,10 @@ userRouter.post("/register", async (req, res) => {
 
 userRouter.get("/user/:id", async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const user = await User.findById(id).select("-password");
-  
-    res.status(200).json({ message: 'User fetched successfully', user});
+
+    res.status(200).json({ message: 'User fetched successfully', user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Error in fetching user`, error });
@@ -63,8 +63,8 @@ userRouter.get("/user/:id", async (req, res) => {
 userRouter.get("/user", async (req, res) => {
   try {
     const users = await User.find().select("-password -cart -notifications -fcmToken");
-  
-    res.status(200).json({ message: 'User fetched successfully', users});
+
+    res.status(200).json({ message: 'User fetched successfully', users });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Error in fetching users`, error });
@@ -78,7 +78,7 @@ userRouter.post('/login', async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid email' });
     }
 
     // Compare provided password with the stored hash
@@ -97,11 +97,11 @@ userRouter.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
     const fcmToken = user.fcmToken;
-    if(fcmToken != null && user.username != null) {
+    if (fcmToken != null && user.username != null) {
       const notificationTitle = "Welcome back to Bookeez!";
       const notificationMessage = `Hey ${user.username}, we’re glad to see you again! Ready to explore the latest updates?`;
       const notification = await sendPushNotification(fcmToken, notificationTitle, notificationMessage);
-  
+
       const afterNotificationAdded = await User.updateOne(
         { _id: user._id },
         {
@@ -115,7 +115,6 @@ userRouter.post('/login', async (req, res) => {
         }
       );
     }
-   
 
     res.status(200).json({ message: 'Logged in successfully', user, token, refreshToken });
   } catch (error) {

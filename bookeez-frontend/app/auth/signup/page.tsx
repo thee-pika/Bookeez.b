@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react";
+import dotenv from 'dotenv';
 import useFCMToken from "../../hooks/useFCMToken"  
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
 
 const Signup = () => {
+    dotenv.config();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -33,7 +35,7 @@ const Signup = () => {
 
         try {
             console.log("before sending request fcmtoken", fcmToken);
-            const response = await fetch('http://localhost:5000/auth/register', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

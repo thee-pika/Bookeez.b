@@ -14,5 +14,6 @@ try {
 }
        
 }
-
+// Fm2z3wuETcJn2mck
+//mongodb+srv://mogilideepika218:Fm2z3wuETcJn2mck@cluster0.ns6tl.mongodb.net/
 export default connectMongoDB;
