@@ -31,6 +31,7 @@ const Templates = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template`);
 
             const data = await response.json();
+            console.log("data", data);
             settemplates(data.template)
 
         } catch (error) {
