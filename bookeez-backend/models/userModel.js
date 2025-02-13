@@ -5,12 +5,10 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true
   },
   email: {
     type: String,
     required: true,
-    unique: true
   },
   password: {
     type: String,
@@ -33,17 +31,13 @@ const userSchema = new mongoose.Schema({
       }
     }
   ],
-  fcmToken: {
-    type: String,
-    required: false, // or true if you require it
-  },
-  notifications: [
-    {
-      title: String,
-      body: String,
-      timestamp: String,
-    }
-  ],
+  // notifications: [
+  //   {
+  //     title: String,
+  //     body: String,
+  //     timestamp: String,
+  //   }
+  // ],
   createdAt:{ type: Date, default: Date.now},
 });
 

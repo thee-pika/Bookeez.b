@@ -31,4 +31,17 @@ bookRouter.post("/:id/addBook", async (req, res) => {
     }
 })
 
+
+bookRouter.get("/", async (req,res) => {
+   const templates = await Template.find();
+
+   if(!templates || templates.length < 1) {
+    res.status(404).json({ message: 'No Templates found' });
+    return;
+   }
+
+   res.status(200).json({ templates });
+
+})
+
 export default bookRouter

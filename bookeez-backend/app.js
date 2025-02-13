@@ -8,7 +8,7 @@ import bookRouter from "./controllers/bookRouter.js";
 import cartRouter from "./controllers/cartRouter.js";
 import userRouter from "./controllers/authRoute.js";
 import verifyRouter from "./controllers/verifyRoute.js";
-import notifyRouter from "./controllers/notificationController.js";
+// import notifyRouter from "./controllers/notificationController.js";
 
 const app = express();
 
@@ -24,7 +24,8 @@ app.use("/api/template",bookRouter)
 app.use("/api/user",cartRouter)
 app.use("/auth",userRouter)
 app.use("/verify",verifyRouter)
-app.use("/notification", notifyRouter)
+
+// app.use("/notification", notifyRouter)
 // Sample Route
 app.get("/", (req, res) => {
   res.send("Welcome to the Bookeez Backend!");

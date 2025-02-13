@@ -3,45 +3,29 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
-import { sendPushNotification } from '../services/notificationService.js';
 
 const userRouter = express.Router();
 dotenv.config();
 
 userRouter.post("/register", async (req, res) => {
-  const { username, email, password, fcmToken } = req.body;
+  const { username, email, password } = req.body;
 
   try {
+
     const userExists = await User.findOne({ email });
     if (userExists) {
-      console.log(userExists)
+      console.log("user exists",userExists);
       return res.status(400).json({ message: 'User already exists', userExists });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword, fcmToken });
+    const newUser = new User({ username, email, password: hashedPassword });
 
-    await newUser.save();
+   const user = await newUser.save();
 
-    const notificationTitle = "Welcome to Bookeez!";
-    const notificationMessage = "Your account has been successfully created.";
-    const notification = await sendPushNotification(fcmToken, notificationTitle, notificationMessage);
-
-    const afterNotificationAdded = await User.updateOne(
-      { _id: newUser._id },
-      {
-        $push: {
-          notifications: {
-            title: notificationTitle,
-            body: notificationMessage,
-            timestamp: new Date().toISOString(),
-          },
-        },
-      }
-    );
-
-    res.status(201).json({ message: 'User created successfully', user: afterNotificationAdded, notificationTitle, notificationMessage });
+    res.status(201).json({ message: 'User created successfully', user });
+   
   } catch (error) {
     console.log(error);
     res.status(501).json({ message: `Error registering user ${username, email}`, error });
@@ -96,25 +80,6 @@ userRouter.post('/login', async (req, res) => {
       process.env.JWT_REFRESH_SECRET_KEY,
       { expiresIn: '7d' }
     );
-    const fcmToken = user.fcmToken;
-    if (fcmToken != null && user.username != null) {
-      const notificationTitle = "Welcome back to Bookeez!";
-      const notificationMessage = `Hey ${user.username}, we’re glad to see you again! Ready to explore the latest updates?`;
-      const notification = await sendPushNotification(fcmToken, notificationTitle, notificationMessage);
-
-      const afterNotificationAdded = await User.updateOne(
-        { _id: user._id },
-        {
-          $push: {
-            notifications: {
-              title: notificationTitle,
-              body: notificationMessage,
-              timestamp: new Date().toISOString(),
-            },
-          },
-        }
-      );
-    }
 
     res.status(200).json({ message: 'Logged in successfully', user, token, refreshToken });
   } catch (error) {

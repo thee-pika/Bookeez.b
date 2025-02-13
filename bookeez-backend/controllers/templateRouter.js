@@ -62,6 +62,7 @@ templateRouter.get("/template", async (req, res) => {
       message: "allTemplates are rendered successfully!",
       template: allTemplates,
     });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({
