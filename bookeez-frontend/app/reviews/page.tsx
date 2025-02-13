@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import StarRatingComponent from "react-star-rating-component";
+import { Rating } from 'react-simple-star-rating'
 import dotenv from 'dotenv';
 import { useRouter } from "next/navigation";
 
@@ -15,30 +15,41 @@ interface Review {
 const Reviews = () => {
   dotenv.config();
   const router = useRouter();
+  const [rating, setRating] = useState(0);
   const [allReviews, setallReviews] = useState<Review[] | undefined>([])
   const [users, setUsers] = useState<{ [key: string]: string }>({})
 
+  const handleRating = (rate: number) => {
+    setRating(rate)
+}
+
+// const handleReset = () => {
+//     // Set the initial value
+//     setRating(0)
+// }
+
+
   useEffect(() => {
-    fetchReviews();
-  }, [])
-
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/review`);
-
-      if (res.ok) {
-        const data = await res.json();
-
-        setallReviews(data.allReviews)
-        fetchUsername(data.allReviews)
-
-        router.refresh()
-
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/review`);
+  
+        if (res.ok) {
+          const data = await res.json();
+  
+          setallReviews(data.allReviews)
+          fetchUsername(data.allReviews)
+  
+          router.refresh()
+  
+        }
+      } catch (error) {
+        console.log("eror", error)
       }
-    } catch (error) {
-      console.log("eror", error)
     }
-  }
+    fetchReviews();
+  }, [router])
+
 
   const fetchUsername = async (allReviews: Review[]) => {
     try {
@@ -82,14 +93,15 @@ const Reviews = () => {
           >
             {/* Star Rating */}
             <div className="flex items-center mb-4">
-              <StarRatingComponent
+              {/* <StarRatingComponent
                 name={`rating-${review.userId}`}
                 starColor="#FFD700"
                 starCount={5}
                 value={review.rating}
                 editing={false}
                 emptyStarColor="#d3d3d3"
-              />
+              /> */}
+                <Rating onClick={handleRating} initialValue={rating} />
             </div>
             {/* Review Content */}
             <p className="text-white text-lg mb-2 italic">&quot;{review.comment}&quot;</p>

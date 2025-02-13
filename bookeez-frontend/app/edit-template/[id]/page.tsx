@@ -29,15 +29,53 @@ interface Template {
 const EditTemplate = () => {
     dotenv.config();
     const router = useRouter();
-    const [template, setTemplate] = useState<Template | undefined>()
+    const [, setTemplate] = useState<Template | undefined>()
     const [loading, setLoading] = useState(true)
     const { id } = useParams()
 
     useEffect(() => {
         if (id) {
+            const fetchTemplate = async () => {
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`)
+                    if (!res.ok) {
+                        console.log("eeror");
+                    }
+                    const { template } = await res.json();
+        
+        
+                    if (!template.defaultValues.imageUrl) {
+                        console.log("Image not found!!!");
+                    }
+                    if (template) {
+                        console.log(template)
+                        setTemplate(template)
+                        SetFormData({
+                            title: template.defaultValues.title,
+                            author: template.defaultValues.author,
+                            price: template.defaultValues.price.toString(),
+                            description: template.defaultValues.description,
+                            isbn: template.defaultValues.isbn,
+                            stream: template.defaultValues.stream,
+                            subject: template.defaultValues.subject,
+                            semester: template.defaultValues.semester,
+                            condition: template.defaultValues.condition,
+                            imageUrl: template.defaultValues.imageUrl || ""
+                        });
+                        setTemplateName(template.template_name);
+        
+                    }
+                } catch (error) {
+                    console.log("eror!!", error)
+                } finally {
+                    setLoading(false)
+                }
+        
+            }
+
             fetchTemplate()
         }
-    }, [id])
+    }, [, id])
 
     const [formData, SetFormData] = useState({
         title: "",
@@ -77,43 +115,6 @@ const EditTemplate = () => {
     const semsterOptions = ['Semester 1', ' Semester 2', ' Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester7', 'Semester8']
 
 
-    const fetchTemplate = async () => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/api/template/${id}`)
-            if (!res.ok) {
-                console.log("eeror");
-            }
-            const { template } = await res.json();
-
-
-            if (!template.defaultValues.imageUrl) {
-                console.log("Image not found!!!");
-            }
-            if (template) {
-                console.log(template)
-                setTemplate(template)
-                SetFormData({
-                    title: template.defaultValues.title,
-                    author: template.defaultValues.author,
-                    price: template.defaultValues.price.toString(),
-                    description: template.defaultValues.description,
-                    isbn: template.defaultValues.isbn,
-                    stream: template.defaultValues.stream,
-                    subject: template.defaultValues.subject,
-                    semester: template.defaultValues.semester,
-                    condition: template.defaultValues.condition,
-                    imageUrl: template.defaultValues.imageUrl || ""
-                });
-                setTemplateName(template.template_name);
-
-            }
-        } catch (error) {
-            console.log("eror!!", error)
-        } finally {
-            setLoading(false)
-        }
-
-    }
     if (loading) {
         return <div className="h-screen justify-center items-center flex">
             loafing....

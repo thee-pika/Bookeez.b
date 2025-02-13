@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import dotenv from 'dotenv';
-import useFCMToken from "../../hooks/useFCMToken"  
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
@@ -15,26 +14,17 @@ const Signup = () => {
 
     const router = useRouter();
 
-    const {fcmToken} = useFCMToken(); 
-
     const handleSubmit = async (e: React.FormEvent<EventTarget>) => {
         e.preventDefault();
-        
-        if (!fcmToken) {
-            console.log("FCM Token is null");
-            toast.error("FCM Token is missing!");  
-            return;
-        }
-
+      
         const newUserData = {
             username,
             email,
-            password,
-            fcmToken,
+            password
         };
 
         try {
-            console.log("before sending request fcmtoken", fcmToken);
+          
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth/register`, {
                 method: 'POST',
                 headers: {
