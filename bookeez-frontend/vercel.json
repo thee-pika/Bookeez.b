@@ -1,0 +1,10 @@
+{
+    "projects": {
+      "admin": {
+        "source": "Bookeez-Admin/bookeez-frontend",
+        "buildCommand": "npm install && npm run build",
+        "outputDirectory": ".next"
+      }
+    }
+  }
+  
