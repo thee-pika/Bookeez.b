@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import verifyToken from '../utils/verifyToken.js';
 
 const userRouter = express.Router();
 dotenv.config();
@@ -14,7 +15,7 @@ userRouter.post("/register", async (req, res) => {
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      console.log("user exists",userExists);
+      console.log("user exists", userExists);
       return res.status(400).json({ message: 'User already exists', userExists });
     }
 
@@ -22,17 +23,17 @@ userRouter.post("/register", async (req, res) => {
 
     const newUser = new User({ username, email, password: hashedPassword });
 
-   const user = await newUser.save();
+    const user = await newUser.save();
 
     res.status(201).json({ message: 'User created successfully', user });
-   
+
   } catch (error) {
     console.log(error);
     res.status(501).json({ message: `Error registering user ${username, email}`, error });
   }
 });
 
-userRouter.get("/user/:id", async (req, res) => {
+userRouter.get("/user/:id" , async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id).select("-password");
@@ -44,9 +45,24 @@ userRouter.get("/user/:id", async (req, res) => {
   }
 });
 
+userRouter.get("/books", verifyToken, async (req, res) => {
+  try {
+   
+    const user = await User.findById(req.userId).select("-password");
+    console.log("userrrrrrrrrrrrrrrrrrrr,", user);
+    if (!user) {
+      res.status(400).json({ message: 'User not found' });
+    }
+    const books =  user.books;
+    res.status(200).json({ books });
+  } catch (error) {
+    res.status(500).json({ message: `Error in fetching user`, error });
+  }
+});
+
 userRouter.get("/user", async (req, res) => {
   try {
-    const users = await User.find().select("-password -cart -notifications -fcmToken");
+    const users = await User.find().select("-password -cart");
 
     res.status(200).json({ message: 'User fetched successfully', users });
   } catch (error) {
@@ -73,12 +89,11 @@ userRouter.post('/login', async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.JWT_REFRESH_SECRET_KEY,
-      { expiresIn: '7d' }
+      process.env.JWT_REFRESH_SECRET_KEY
     );
 
     res.status(200).json({ message: 'Logged in successfully', user, token, refreshToken });
@@ -108,8 +123,7 @@ userRouter.post('/refresh', async (req, res) => {
       // Generate a new access token
       const newAccessToken = jwt.sign(
         { userId: user._id },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: '1h' }
+        process.env.JWT_SECRET_KEY
       );
 
       res.status(200).json({ accessToken: newAccessToken });

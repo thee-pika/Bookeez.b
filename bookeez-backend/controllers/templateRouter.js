@@ -1,10 +1,11 @@
 import express from "express";
 import Template from "../models/templateModel.js";
 import mongoose from 'mongoose';
+import verifyToken from "../utils/verifyToken.js";
 
 const templateRouter = express.Router();
 
-templateRouter.post("/add-template", async (req, res) => {
+templateRouter.post("/add-template", verifyToken, async (req, res) => {
   const { template_name, defaultValues } = req.body;
 
   try {
@@ -62,7 +63,7 @@ templateRouter.get("/template", async (req, res) => {
       message: "allTemplates are rendered successfully!",
       template: allTemplates,
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -88,7 +89,7 @@ templateRouter.get("/template/review", async (req, res) => {
 
     allTemplates.forEach(template => {
       if (template.reviews && template.reviews.length > 0) {
-       
+
         allReviews = [...allReviews, ...template.reviews];
       }
     });
@@ -107,16 +108,15 @@ templateRouter.get("/template/review", async (req, res) => {
   }
 });
 
-
-
-templateRouter.post("/template/:id/review", async (req, res) => {
+templateRouter.post("/template/:id/review", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { userId, username, comment, rating } = req.body;
-
+    const { username, comment, rating } = req.body;
+    console.log("user req in review", req.body);
+    const uid = req.userId
     const reviewAddedTemplate = await Template.findByIdAndUpdate(id, {
-      $push: { reviews: { userId, username, comment, rating, date: new Date() } }
+      $push: { reviews: { userId: uid, username, comment, rating, date: new Date() } }
     },
       { new: true }
     )
@@ -127,6 +127,7 @@ templateRouter.post("/template/:id/review", async (req, res) => {
     res.status(400).json({ message: "Review could not be added successfully!!!", error });
   }
 })
+
 templateRouter.get("/template/:id/review", async (req, res) => {
   try {
     const { id } = req.params;
@@ -164,7 +165,106 @@ templateRouter.get("/template/:id", async (req, res) => {
     });
   }
 });
-templateRouter.delete("/template/:id", async (req, res) => {
+templateRouter.get("/template/:id/review/:reviewId", async (req, res) => {
+
+  try {
+    const template_id = req.params.id;
+    const template = await Template.findById(template_id);
+    const reviewId = req.params.reviewId;
+
+    if (!template) {
+      return res.status(400).json({
+        message: 'No Templates Found!',
+        error: error.message,
+      });
+    }
+
+    const review = template.reviews.filter((review) => review._id.toString() === reviewId);
+
+    res.status(200).json({
+      review:review[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'cannot get reviews',
+      error: error.message,
+    });
+  }
+});
+templateRouter.put("/template/:id/review/:reviewId", verifyToken, async (req, res) => {
+
+  try {
+    const template_id = req.params.id;
+    const template = await Template.findById(template_id);
+    const reviewId = req.params.reviewId;
+
+    if (!template) {
+      return res.status(400).json({
+        message: 'No Templates Found!',
+        error: error.message,
+      });
+    }
+
+    const updatedFields = req.body;
+    const reviewIdx = template.reviews.findIndex((review) => review._id.toString() === reviewId);
+
+    if (reviewIdx === -1) {
+      return res.status(404).json({ message: 'Review not found!' });
+    }
+
+    const reviewToUPdate = template.reviews[reviewIdx];
+    Object.keys(updatedFields).forEach((field) => {
+      reviewToUPdate[field] = updatedFields[field];
+    })
+
+    const updatedTemplate = await template.save();
+    res.status(200).json({
+      message: "Template updated successfully!",
+      template: updatedTemplate,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'cannot update template',
+      error: error.message,
+    });
+  }
+});
+templateRouter.delete("/template/:id/review/:reviewId", verifyToken, async (req, res) => {
+
+  try {
+    const template_id = req.params.id;
+    const template = await Template.findById(template_id);
+    const reviewId = req.params.reviewId;
+
+    if (!template) {
+      return res.status(400).json({
+        message: 'No Templates Found!',
+        error: error.message,
+      });
+    }
+
+    const updatedReviews = template.reviews.filter((review) => review._id.toString() !== reviewId);
+    template.reviews = updatedReviews;
+
+    await template.save();
+
+    res.status(200).json({
+      message: "Template deleted successfully!",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'cannot update template',
+      error: error.message,
+    });
+  }
+});
+templateRouter.delete("/template/:id", verifyToken, async (req, res) => {
 
   try {
     const template_id = req.params.id;
@@ -194,7 +294,7 @@ templateRouter.delete("/template/:id", async (req, res) => {
   }
 });
 
-templateRouter.put("/template/:id", async (req, res) => {
+templateRouter.put("/template/:id", verifyToken, async (req, res) => {
   console.log("Request Body: ", req.body);
   const templateId = req.params.id;
   const { template_name, defaultValues } = req.body;

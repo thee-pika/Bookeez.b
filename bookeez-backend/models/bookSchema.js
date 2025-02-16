@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
-import {bookSchema, reviewSchema} from "./schemas/index.js";
+import { sellerSchema } from './buyerSchema.js';
 
-const templateSchema = new mongoose.Schema({
-  template_name: { type: String, required: true },
-  defaultValues: {
+export const bookSchema = new mongoose.Schema({
     title: { type: String, required: true },
     author: { type: String, required: true },
     price: { type: Number, required: true },
@@ -14,11 +12,5 @@ const templateSchema = new mongoose.Schema({
     semester: { type: String, required: true },
     condition: { type: String, required: true },
     imageUrl: { type: String, required: true },
-  },
-  books: [bookSchema],
-  reviews: [reviewSchema]
-});
-
-const Template = mongoose.model('Template', templateSchema);
-
-export default Template;
+    sellerDetails: sellerSchema
+}, {timestamps: true});

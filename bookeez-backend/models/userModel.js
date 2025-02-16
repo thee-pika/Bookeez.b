@@ -1,5 +1,6 @@
 // models/userModel.js
 import mongoose from 'mongoose';
+import {bookSchema} from './bookSchema.js';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -18,6 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "user"
   },
+  books: [bookSchema],
   cart: [
     {
       template: { type: mongoose.Schema.Types.ObjectId, ref: "Template" },
@@ -31,13 +33,6 @@ const userSchema = new mongoose.Schema({
       }
     }
   ],
-  // notifications: [
-  //   {
-  //     title: String,
-  //     body: String,
-  //     timestamp: String,
-  //   }
-  // ],
   createdAt:{ type: Date, default: Date.now},
 });
 

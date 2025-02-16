@@ -1,19 +1,18 @@
 import express from "express";
 import User from "../models/userModel.js";
 import Template from "../models/templateModel.js";
+import verifyToken from "../utils/verifyToken.js";
 
 const cartRouter = express.Router();
 
-cartRouter.post("/cart", async (req, res) => {
+cartRouter.post("/cart", verifyToken,async (req, res) => {
     try {
         const { userId, template_Id } = req.body;
 
-       
         if (!userId || !template_Id) {
             return res.status(400).json({ message: "UserId and TemplateId are required" });
         }
 
-    
         const user = await User.findById(userId);
 
         if (!user) {
@@ -71,7 +70,7 @@ cartRouter.get("/cart", async (req, res) => {
     }
 });
 
-cartRouter.delete("/cart", async (req, res) => {
+cartRouter.delete("/cart", verifyToken,async (req, res) => {
     try {
         const { userId, itemId } = req.query;
 

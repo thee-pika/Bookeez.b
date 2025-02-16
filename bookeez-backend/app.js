@@ -7,7 +7,8 @@ import templateRouter from "./controllers/templateRouter.js";
 import bookRouter from "./controllers/bookRouter.js";
 import cartRouter from "./controllers/cartRouter.js";
 import userRouter from "./controllers/authRoute.js";
-import verifyRouter from "./controllers/verifyRoute.js";
+// import verifyRouter from "./controllers/verifyRoute.js";
+import paymentRouter from "./controllers/paymentRouter.js";
 // import notifyRouter from "./controllers/notificationController.js";
 
 const app = express();
@@ -19,14 +20,17 @@ app.use(express.json());
 
 app.use(bodyParser.json()); 
 
-app.use("/api",templateRouter)
+app.use("/api/",templateRouter)
 app.use("/api/template",bookRouter)
 app.use("/api/user",cartRouter)
+app.use("/api/payment", paymentRouter)
 app.use("/auth",userRouter)
-app.use("/verify",verifyRouter)
+// app.use("/verify",verifyRouter);
+
 
 // app.use("/notification", notifyRouter)
 // Sample Route
+
 app.get("/", (req, res) => {
   res.send("Welcome to the Bookeez Backend!");
 });
