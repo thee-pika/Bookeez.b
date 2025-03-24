@@ -49,10 +49,13 @@ userRouter.get("/books", verifyToken, async (req, res) => {
   try {
    
     const user = await User.findById(req.userId).select("-password");
-    console.log("userrrrrrrrrrrrrrrrrrrr,", user);
+   
     if (!user) {
       res.status(400).json({ message: 'User not found' });
     }
+    
+    console.log("user", user);
+
     const books =  user.books;
     res.status(200).json({ books });
   } catch (error) {

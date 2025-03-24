@@ -7,9 +7,7 @@ import templateRouter from "./controllers/templateRouter.js";
 import bookRouter from "./controllers/bookRouter.js";
 import cartRouter from "./controllers/cartRouter.js";
 import userRouter from "./controllers/authRoute.js";
-// import verifyRouter from "./controllers/verifyRoute.js";
 import paymentRouter from "./controllers/paymentRouter.js";
-// import notifyRouter from "./controllers/notificationController.js";
 
 const app = express();
 
